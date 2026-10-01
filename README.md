@@ -52,5 +52,18 @@ Open [http://localhost:3000](http://localhost:3000), create an account, and add 
 ## Notes
 
 - Overview metrics and charts are derived from persisted trades for the signed-in user.
-- Incomplete product areas (Calendar, Analytics deep-dive, Playbook, etc.) are marked **Soon** instead of showing fake data.
+- On boot / first request the app ensures auth + trade tables exist (safe for fresh Postgres).
 - Sign out is available from the sidebar.
+- Health check: `GET /api/health`
+
+## Deploy (Vercel)
+
+Set these environment variables for Production **and** Preview:
+
+- `DATABASE_URL`
+- `BETTER_AUTH_SECRET`
+- `BETTER_AUTH_URL` (your canonical public URL, e.g. `https://edgelog.app`)
+
+Point your custom domain DNS to Vercel (A/CNAME per Vercel’s domain UI). If the domain resolves to an unrelated IP and times out, update the DNS records — the app cannot fix that from code.
+
+After changing env vars, redeploy. Then hit `/api/health` — it should return `{ "ok": true }`.

@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { nanoid } from 'nanoid'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { ensureSchema } from '@/lib/db/ensure-schema'
 import { trade } from '@/lib/db/schema'
 import { computePnl } from '@/lib/trades'
 
@@ -67,6 +68,7 @@ async function requireUserId() {
 
 export async function createTradeAction(input: CreateTradeInput) {
   const userId = await requireUserId()
+  await ensureSchema()
   const parsed = createTradeSchema.safeParse(input)
   if (!parsed.success) {
     return { ok: false as const, error: parsed.error.issues[0]?.message ?? 'Invalid trade' }

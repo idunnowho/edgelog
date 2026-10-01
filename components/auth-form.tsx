@@ -1,12 +1,10 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth-client'
 
 export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
-  const router = useRouter()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const isSignUp = mode === 'sign-up'
@@ -36,8 +34,9 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
         return
       }
 
-      router.push('/')
-      router.refresh()
+      // Hard navigation avoids stale RSC payloads after the session cookie is set.
+      window.location.assign('/')
+      return
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {

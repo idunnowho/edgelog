@@ -146,6 +146,11 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
   const [search, setSearch] = useState('')
   const [signingOut, setSigningOut] = useState(false)
   const [pending, startTransition] = useTransition()
+  const [now, setNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    setNow(new Date())
+  }, [])
 
   const accountOptions = useMemo(() => {
     return ['All accounts', ...metrics.accounts]
@@ -216,14 +221,17 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
     })
   }
 
-  const now = new Date()
   const rangeLabel =
     scopedMetrics.equityCurve.length > 0
       ? `${scopedMetrics.equityCurve[0].label} — ${scopedMetrics.equityCurve[scopedMetrics.equityCurve.length - 1].label}`
-      : formatShortDate(now)
+      : now
+        ? formatShortDate(now)
+        : '—'
 
   const netPositive = scopedMetrics.netPnl >= 0
   const drawdownPositive = scopedMetrics.maxDrawdown >= 0
+  const greeting = now ? `${greetingForHour(now)}, ${firstName(user.name)}` : firstName(user.name)
+  const longDate = now ? formatLongDate(now) : '—'
 
   return (
     <div className="min-h-screen bg-[#080c12] text-slate-200 selection:bg-cyan-300/30">
@@ -317,10 +325,8 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
               <Menu size={20} />
             </button>
             <div>
-              <p className="text-[11px] text-slate-500">{formatLongDate(now)}</p>
-              <h1 className="text-[16px] font-semibold tracking-[-0.02em] text-white">
-                {greetingForHour(now)}, {firstName(user.name)}
-              </h1>
+              <p className="text-[11px] text-slate-500">{longDate}</p>
+              <h1 className="text-[16px] font-semibold tracking-[-0.02em] text-white">{greeting}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2.5">
