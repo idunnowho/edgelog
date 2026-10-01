@@ -3,6 +3,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  agentRules: false,
 }
 
 export default nextConfig

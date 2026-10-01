@@ -7,25 +7,22 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BarChart3,
-  BookOpen,
   CalendarDays,
   ChevronDown,
   Command,
-  FileText,
-  Filter,
   LayoutDashboard,
   LogOut,
   Menu,
   MoreHorizontal,
   Plus,
   Search,
-  ShieldCheck,
   Sparkles,
   Target,
   Trash2,
   TrendingUp,
   WalletCards,
   X,
+  Filter,
 } from 'lucide-react'
 import { createTradeAction, deleteTradeAction } from '@/app/actions/trades'
 import { signOut } from '@/lib/auth-client'
@@ -46,18 +43,10 @@ import { buildMetrics, type TradeDTO, type TradeMetrics } from '@/lib/trade-metr
 const navItems = [
   { label: 'Overview', icon: LayoutDashboard },
   { label: 'Trade log', icon: Activity },
-  { label: 'Calendar', icon: CalendarDays, soon: true },
-  { label: 'Analytics', icon: BarChart3, soon: true },
-  { label: 'Strategies', icon: Target, soon: true },
-  { label: 'Journal', icon: BookOpen, soon: true },
 ] as const
 
 const workspaceItems = [
-  { label: 'Playbook', icon: FileText, soon: true },
-  { label: 'Accounts', icon: WalletCards, soon: true },
-  { label: 'Prop firms', icon: ShieldCheck, soon: true },
   { label: 'EdgeCoach', icon: Sparkles, accent: true },
-  { label: 'Reports', icon: FileText, soon: true },
 ] as const
 
 type DashboardProps = {
@@ -263,21 +252,17 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
             <button
               key={item.label}
               onClick={() => {
-                if ('soon' in item && item.soon) return
                 setActive(item.label)
                 setMobileNav(false)
               }}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] font-medium transition ${
                 active === item.label ? 'bg-white/[0.08] text-white' : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
-              } ${'soon' in item && item.soon ? 'cursor-default opacity-60' : ''}`}
+              }`}
             >
               <item.icon size={16} strokeWidth={1.8} />
               <span>{item.label}</span>
               {item.label === 'Trade log' && (
                 <span className="ml-auto text-[10px] text-slate-600">{trades.length}</span>
-              )}
-              {'soon' in item && item.soon && (
-                <span className="ml-auto text-[9px] uppercase tracking-wide text-slate-600">Soon</span>
               )}
             </button>
           ))}
@@ -288,21 +273,17 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
             <button
               key={item.label}
               onClick={() => {
-                if ('soon' in item && item.soon) return
                 setActive(item.label)
                 setMobileNav(false)
               }}
               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] font-medium transition ${
                 active === item.label ? 'bg-white/[0.08] text-white' : 'text-slate-500 hover:bg-white/[0.04] hover:text-slate-300'
-              } ${'soon' in item && item.soon ? 'cursor-default opacity-60' : ''}`}
+              }`}
             >
               <item.icon size={16} strokeWidth={1.8} />
               <span className={'accent' in item && item.accent ? 'text-cyan-300' : ''}>{item.label}</span>
               {'accent' in item && item.accent && (
                 <span className="ml-auto rounded bg-cyan-400/10 px-1.5 py-0.5 text-[9px] text-cyan-300">AI</span>
-              )}
-              {'soon' in item && item.soon && (
-                <span className="ml-auto text-[9px] uppercase tracking-wide text-slate-600">Soon</span>
               )}
             </button>
           ))}
@@ -423,8 +404,14 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
                         : '—'
                       : formatNumber(scopedMetrics.profitFactor)
                   }
-                  change={scopedMetrics.profitFactor === null ? 'Needs wins & losses' : 'Gross profit / loss'}
-                  positive={(scopedMetrics.profitFactor ?? 0) >= 1}
+                  change={
+                    scopedMetrics.profitFactor === null
+                      ? scopedMetrics.netPnl > 0 && scopedMetrics.tradeCount > 0
+                        ? 'No losing trades yet'
+                        : 'Needs wins & losses'
+                      : 'Gross profit / loss'
+                  }
+                  positive={(scopedMetrics.profitFactor ?? (scopedMetrics.netPnl > 0 ? 2 : 0)) >= 1}
                   icon={<Activity size={15} />}
                 />
                 <Metric

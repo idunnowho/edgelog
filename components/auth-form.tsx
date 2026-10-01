@@ -105,6 +105,7 @@ export function AuthForm({ mode }: { mode: 'sign-in' | 'sign-up' }) {
             </p>
           )}
           <button
+            type="submit"
             disabled={loading}
             className="w-full rounded-lg bg-cyan-300 px-4 py-2.5 font-semibold text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
