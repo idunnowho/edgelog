@@ -202,9 +202,19 @@ export default function EdgeLogDashboard({ user, trades, metrics }: DashboardPro
   async function handleSignOut() {
     setSigningOut(true)
     try {
-      await signOut()
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push('/sign-in')
+            router.refresh()
+          },
+        },
+      })
       router.push('/sign-in')
       router.refresh()
+    } catch {
+      // Fall through to hard navigation if the client helper fails.
+      window.location.href = '/sign-in'
     } finally {
       setSigningOut(false)
     }
@@ -754,25 +764,29 @@ function AddTradeModal({
     setError('')
     try {
       const form = new FormData(event.currentTarget)
+      const emptyToNull = (value: FormDataEntryValue | null) => {
+        const text = String(value ?? '').trim()
+        return text ? text : null
+      }
       const result = await createTradeAction({
         symbol: String(form.get('symbol') ?? ''),
         side,
-        setup: String(form.get('setup') ?? '') || null,
-        accountName: String(form.get('accountName') ?? '') || null,
-        quantity: Number(form.get('quantity')),
-        entryPrice: Number(form.get('entryPrice')),
-        exitPrice: Number(form.get('exitPrice')),
-        stopLoss: form.get('stopLoss') ? Number(form.get('stopLoss')) : null,
-        takeProfit: form.get('takeProfit') ? Number(form.get('takeProfit')) : null,
-        notes: String(form.get('notes') ?? '') || null,
+        setup: emptyToNull(form.get('setup')),
+        accountName: emptyToNull(form.get('accountName')),
+        quantity: String(form.get('quantity') ?? ''),
+        entryPrice: String(form.get('entryPrice') ?? ''),
+        exitPrice: String(form.get('exitPrice') ?? ''),
+        stopLoss: emptyToNull(form.get('stopLoss')),
+        takeProfit: emptyToNull(form.get('takeProfit')),
+        notes: emptyToNull(form.get('notes')),
       })
       if (!result.ok) {
         setError(result.error)
         return
       }
       onSaved()
-    } catch {
-      setError('Could not save this trade. Check your connection and try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not save this trade. Please try again.')
     } finally {
       setSaving(false)
     }
