@@ -5,7 +5,6 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'EdgeLog — Turn every trade into data',
   description: 'A professional trading journal and performance analytics workspace.',
-  generator: 'v0.app',
   icons: {
     icon: [
       {
