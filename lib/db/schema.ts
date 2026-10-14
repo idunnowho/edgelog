@@ -1,4 +1,4 @@
-import { boolean, numeric, pgTable, text, timestamp, index } from 'drizzle-orm/pg-core'
+import { boolean, numeric, pgTable, text, timestamp, index, uniqueIndex } from 'drizzle-orm/pg-core'
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -32,6 +32,23 @@ export const verification = pgTable('verification', {
   id: text('id').primaryKey(), identifier: text('identifier').notNull(), value: text('value').notNull(), expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
   createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(), updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull().defaultNow(),
 })
+
+export const tradovateConnection = pgTable('tradovate_connection', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  environment: text('environment').notNull(),
+  tradovateUserId: text('tradovateUserId'),
+  tradovateUsername: text('tradovateUsername'),
+  accessToken: text('accessToken').notNull(),
+  refreshToken: text('refreshToken'),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt', { withTimezone: true }),
+  apiHost: text('apiHost'),
+  apiHosts: text('apiHosts'),
+  deviceId: text('deviceId'),
+  authMethod: text('authMethod').notNull(),
+  createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [uniqueIndex('tradovate_connection_user_env_idx').on(table.userId, table.environment)])
 
 export const trade = pgTable('trade', {
   id: text('id').primaryKey(), userId: text('userId').notNull(), symbol: text('symbol').notNull(), side: text('side').notNull(), setup: text('setup'), quantity: numeric('quantity').notNull(), entryPrice: numeric('entryPrice').notNull(), exitPrice: numeric('exitPrice').notNull(), pnl: numeric('pnl').notNull(), openedAt: timestamp('openedAt', { withTimezone: true }).notNull(), closedAt: timestamp('closedAt', { withTimezone: true }), createdAt: timestamp('createdAt', { withTimezone: true }).notNull().defaultNow(),
